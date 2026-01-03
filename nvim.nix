@@ -370,6 +370,9 @@
           };
         };
       };
+      yamlls = {
+        enable = true;
+      };
     };
   };
 
