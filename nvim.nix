@@ -375,98 +375,97 @@
 
   # Keymaps
   extraConfigLua = ''
-    require("ts-node-action").setup({})
-        -- Auto-build on save (customize per project/type if you want)
-      vim.api.nvim_create_autocmd("BufWritePost", {
-        pattern = { "*.java", "pom.xml" },        -- trigger on Java files or pom changes
-        callback = function()
-          -- For Maven projects
-          if vim.fn.filereadable("pom.xml") == 1 then
-            vim.cmd("silent !mvn clean package -q &")   -- background, no output spam
-            print("Maven compile triggered")
-          end
-        end,
-      })
-                -- LSP keymaps on attach
-                vim.api.nvim_create_autocmd("LspAttach", {
-                  callback = function(args)
-                    local opts = { buffer = args.buf, silent = true }
-                    -- Diagnostics
-                    vim.keymap.set("n", "<leader>dn", vim.diagnostic.goto_next, opts)
-                    vim.keymap.set("n", "<leader>dp", vim.diagnostic.goto_prev, opts)
-                    -- Code actions
-                    vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
-                    -- Go to
-                    vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-                    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-                    vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
-                    vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, opts)
-                    vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
-                    vim.keymap.set("n", "rn", vim.lsp.buf.rename, opts)
-                    -- Hover and signature
-                    vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-                    vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, opts)
-                    -- Workspace
-                    vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, opts)
-                    vim.keymap.set("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, opts)
-                    vim.keymap.set("n", "<leader>wl", function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, opts)
-                  end,
-                })
+      -- Auto-build on save (customize per project/type if you want)
+    vim.api.nvim_create_autocmd("BufWritePost", {
+      pattern = { "*.java", "pom.xml" },        -- trigger on Java files or pom changes
+      callback = function()
+        -- For Maven projects
+        if vim.fn.filereadable("pom.xml") == 1 then
+          vim.cmd("silent !mvn clean package -q &")   -- background, no output spam
+          print("Maven compile triggered")
+        end
+      end,
+    })
+              -- LSP keymaps on attach
+              vim.api.nvim_create_autocmd("LspAttach", {
+                callback = function(args)
+                  local opts = { buffer = args.buf, silent = true }
+                  -- Diagnostics
+                  vim.keymap.set("n", "<leader>dn", vim.diagnostic.goto_next, opts)
+                  vim.keymap.set("n", "<leader>dp", vim.diagnostic.goto_prev, opts)
+                  -- Code actions
+                  vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
+                  -- Go to
+                  vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+                  vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+                  vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
+                  vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, opts)
+                  vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+                  vim.keymap.set("n", "rn", vim.lsp.buf.rename, opts)
+                  -- Hover and signature
+                  vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+                  vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, opts)
+                  -- Workspace
+                  vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, opts)
+                  vim.keymap.set("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, opts)
+                  vim.keymap.set("n", "<leader>wl", function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, opts)
+                end,
+              })
 
-                -- Auto-format Java on save
-                -- vim.api.nvim_create_autocmd("BufWritePre", {
-                --   pattern = "*.java",
-                --   callback = function()
-                --     vim.lsp.buf.format({ async = false })
-                --   end,
-                -- })
-          -- Enforce tab/indent settings for Java buffers (ensures LSP request sends tabSize=2)
-            vim.api.nvim_create_autocmd("FileType", {
-              pattern = "java",
-              callback = function()
-                vim.bo.shiftwidth = 2
-                vim.bo.tabstop = 2
-                vim.bo.expandtab = true  -- Use spaces (aligns with JDTLS default insertSpaces=true)
-              end,
-            })
-                -- Highlight on yank
-                vim.api.nvim_create_autocmd("TextYankPost", {
-                  callback = function() vim.highlight.on_yank({ timeout = 100 }) end,
-                })
-
+              -- Auto-format Java on save
+              -- vim.api.nvim_create_autocmd("BufWritePre", {
+              --   pattern = "*.java",
+              --   callback = function()
+              --     vim.lsp.buf.format({ async = false })
+              --   end,
+              -- })
+        -- Enforce tab/indent settings for Java buffers (ensures LSP request sends tabSize=2)
+          vim.api.nvim_create_autocmd("FileType", {
+            pattern = "java",
+            callback = function()
+              vim.bo.shiftwidth = 2
+              vim.bo.tabstop = 2
+              vim.bo.expandtab = true  -- Use spaces (aligns with JDTLS default insertSpaces=true)
+            end,
+          })
+              -- Highlight on yank
+              vim.api.nvim_create_autocmd("TextYankPost", {
+                callback = function() vim.highlight.on_yank({ timeout = 100 }) end,
+              })
 
 
-                	    -- Toggle nvim-tree
-                	    local nvimtree = require('nvim-tree.api').tree
-                	    vim.keymap.set('n', '<C-n>', nvimtree.toggle, { desc = 'Toggle nvim-tree' })
 
-                	    -- Optional: Auto-open on startup if no file
-                	    vim.api.nvim_create_autocmd({ "VimEnter" }, {
-                		callback = function()
-                		local stat = vim.loop.fs_stat(vim.loop.cwd())
-                		if stat and stat.type == "directory" then
-                		require("nvim-tree.api").tree.open()
-                		end
-                		end,
-                		})
+              	    -- Toggle nvim-tree
+              	    local nvimtree = require('nvim-tree.api').tree
+              	    vim.keymap.set('n', '<C-n>', nvimtree.toggle, { desc = 'Toggle nvim-tree' })
 
-                	    local keymap = vim.keymap.set
-                            keymap('n', '<leader>g', '<cmd>Telescope live_grep<CR>')
-                            keymap('i', 'jj', '<Esc>', { noremap = true })
+              	    -- Optional: Auto-open on startup if no file
+              	    vim.api.nvim_create_autocmd({ "VimEnter" }, {
+              		callback = function()
+              		local stat = vim.loop.fs_stat(vim.loop.cwd())
+              		if stat and stat.type == "directory" then
+              		require("nvim-tree.api").tree.open()
+              		end
+              		end,
+              		})
 
-                            vim.api.nvim_create_autocmd("VimEnter", {
-                      	  callback = function()
-                      	  vim.defer_fn(function()
-                      	      vim.cmd("silent !kitty @ set-spacing padding=0 margin=0")
-                      	      end, 100)
-                      	  end,
-                      	  })
+              	    local keymap = vim.keymap.set
+                          keymap('n', '<leader>g', '<cmd>Telescope live_grep<CR>')
+                          keymap('i', 'jj', '<Esc>', { noremap = true })
 
-                          vim.api.nvim_create_autocmd("VimLeave", {
-                      	callback = function()
-                      	vim.cmd("silent !kitty @ set-spacing padding=0 margin=15")
-                      	end,
-                      	})
+                          vim.api.nvim_create_autocmd("VimEnter", {
+                    	  callback = function()
+                    	  vim.defer_fn(function()
+                    	      vim.cmd("silent !kitty @ set-spacing padding=0 margin=0")
+                    	      end, 100)
+                    	  end,
+                    	  })
+
+                        vim.api.nvim_create_autocmd("VimLeave", {
+                    	callback = function()
+                    	vim.cmd("silent !kitty @ set-spacing padding=0 margin=15")
+                    	end,
+                    	})
   '';
 
   extraConfigLuaPre = ''
